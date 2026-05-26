@@ -40,7 +40,7 @@ echo "arch-box" > /etc/hostname
 # ==============================================================================
 echo "-> Rebuilding initial ramdisk environment (initramfs)..."
 # Explicitly triggers a full preset build to match virtual hardware hooks
-mkinitcpio -P
+mkinitcpio -p linux
 
 # ==============================================================================
 # 5. USER PROFILES & PASSWORDS (Arch Wiki Guideline 4.5)
