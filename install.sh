@@ -116,11 +116,16 @@ echo "=========================================="
 echo "   BLOCK 4: THE CHROOT HAND-OFF           "
 echo "=========================================="
 echo "-> Pulling internal staging script..."
+# 1. Download it directly into /mnt/
 curl -L "https://raw.githubusercontent.com/drav3nat0r/arch-installer/main/chroot.sh" -o /mnt/chroot.sh
 chmod +x /mnt/chroot.sh
 
 echo "-> Transitioning execution context into system chroot environment..."
-arch-chroot /mnt ./chroot.sh
+# 2. Force arch-chroot to run the script absolute to the chroot root
+arch-chroot /mnt /chroot.sh
+
+# 3. Clean it up from the root of the new drive after it exits successfully
+rm -f /mnt/chroot.sh
 
 echo "=========================================="
 echo "   BLOCK 5: SYSTEM CLEANUP                "
