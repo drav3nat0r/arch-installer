@@ -1,45 +1,50 @@
 #!/bin/bash
 set -e
 
+# Safety check: Ensure the script is running as root/superuser
+if [ "$EUID" -ne 0 ]; then
+    echo "❌ Error: This script must be run as root to install system packages."
+    exit 1
+fi
+
 echo "=========================================="
 echo "   PHASE 3: PURE WAYLAND PLASMA DESKTOP   "
 echo "=========================================="
 
-echo "-> Installing core graphics drivers..."
-# mesa provides the open-source 3D graphics drivers needed for modern Wayland rendering
-sudo pacman -S --noconfirm mesa
+echo "-> Installing core graphics drivers and sudo framework..."
+# Added 'sudo' here so your 'mornay' user can use it after we reboot!
+pacman -S --noconfirm mesa sudo
 
 echo "-> Installing minimalist KDE Plasma Desktop (Wayland Native)..."
 # plasma-desktop: Just the core shell, panel, and system settings
-# sddm: The login screen display manager (handles Wayland hand-off beautifully)
-# alacritty: Terminal emulator
-sudo pacman -S --noconfirm plasma-desktop sddm alacritty
+# sddm: The login screen display manager
+# konsole: The native KDE terminal emulator
+pacman -S --noconfirm plasma-desktop sddm konsole
 
 echo "-> Installing XWayland compatibility layer..."
-# xorg-xwayland: Essential for running legacy apps that don't support Wayland natively yet
-sudo pacman -S --noconfirm xorg-xwayland
+pacman -S --noconfirm xorg-xwayland
 
 echo "-> Activating the login manager service..."
-sudo systemctl enable sddm.service
+systemctl enable sddm.service
 
 # ==============================================================================
 # YOUR CUSTOM PACKAGES SECTION
 # ==============================================================================
 echo "-> Installing core utility packages..."
 MY_PACKAGES=(
-    "brave-bin"       # Web browser (runs natively on Wayland)
-    "fastfetch"     # Modern, faster alternative to the archived neofetch
+    "firefox"       # Web browser
+    "fastfetch"     # Modern system info display tool
     "ufw"           # Uncomplicated Firewall
 )
 
-sudo pacman -S --noconfirm "${MY_PACKAGES[@]}"
+pacman -S --noconfirm "${MY_PACKAGES[@]}"
 
 if pacman -Qi ufw > /dev/null 2>&1; then
-    sudo systemctl enable ufw.service
+    systemctl enable ufw.service
 fi
 
 echo "=========================================="
 echo "🥇 WAYLAND DESKTOP READY! REBOOTING...   "
 echo "=========================================="
 sleep 2
-sudo reboot
+reboot
